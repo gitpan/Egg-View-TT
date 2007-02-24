@@ -1,0 +1,17 @@
+Revision history for Perl extension Egg::View::TT.
+
+0.04  2007/02/24
+	- Upload to CPAN.
+
+0.03  2007/02/02
+	- It was made to correspond to Egg::Release-1.00.
+	  It doesn't operate in this correction and former version.
+
+0.02  2007/01/14
+	- It was made to pass to response->body after the value received with
+	  'render' had been put in the variable once.
+
+0.01  Sat Dec  9 22:05:28 2006
+	- original version; created by h2xs 1.23 with options
+		-AX -n Egg::View::TT
+

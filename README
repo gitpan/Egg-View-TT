@@ -21,17 +21,11 @@ To install this module type the following:
    make test
    make install
 
-DEPENDENCIES
-
-This module requires these other modules and libraries:
-
-  blah blah blah
-
 COPYRIGHT AND LICENCE
 
 Put the correct copyright and licence information here.
 
-Copyright (C) 2006 by root
+Copyright (C) 2007 by Masatoshi Mizuno. E<lt>lusheE<64>cpan.orgE<gt>
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.6 or,

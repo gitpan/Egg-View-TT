@@ -1,8 +1,9 @@
 use inc::Module::Install;
-name 'Egg-View-TT';
-author 'Masatoshi Mizuno E<lt>mizunoE<64>bomcity.comE<gt>';
-all_from 'lib/Egg/View/TT.pm';
+
+name         'Egg-View-TT';
+all_from     'lib/Egg/View/TT.pm';
 version_from 'lib/Egg/View/TT.pm';
+author       'Masatoshi Mizuno E<lt>lusheE<64>cpan.orgE<gt>';
 license      'perl';
 
 requires 'Egg::Release' => '1.09';

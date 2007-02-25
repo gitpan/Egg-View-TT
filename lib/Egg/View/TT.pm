@@ -1,16 +1,16 @@
 package Egg::View::TT;
 #
 # Copyright 2006 Bee Flag, Corp. All Rights Reserved.
-# Masatoshi Mizuno E<lt>mizunoE<64>bomcity.comE<gt>
+# Masatoshi Mizuno E<lt>lusheE<64>cpan.orgE<gt>
 #
-# $Id: TT.pm 243 2007-02-24 11:31:24Z lushe $
+# $Id: TT.pm 247 2007-02-25 10:21:02Z lushe $
 #
 use strict;
 use UNIVERSAL::require;
 use base qw/Egg::View/;
 use Template;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 sub setup {
 	my($class, $e, $conf)= @_;
@@ -41,6 +41,7 @@ sub render {
 	my $body;
 	my %var = %{$view->params};
 	$var{e} = $view->{e};
+	$var{s} = $view->{e}->stash;
 	$view->{TemplateToolkit}->process($tmpl, \%var, \$body)
 	  || Egg::Error->throw( $view->{TemplateToolkit}->error );
 	return \$body;
@@ -100,17 +101,31 @@ Example of template.
  </div>
  [% INSERT html_footer.tt %]
 
+=head1 DESCRIPTION
+
+ e ... It can access the Egg object.
+ s ... It can access $e->stash.
+
+=head1 METHODS
+
+=head2 output ([EGG_OBJECT], [TEMPLATE], [TemplateToolKit OPTIONS])
+
+The template is output, and it sets it in $e->response->body.
+
+=head2 render ([TEMPLATE], [TemplateToolKit OPTIONS])
+
+The template is output, and it returns it by the SCALAR reference. 
+
 =head1 SEE ALSO
 
 L<http://www.template-toolkit.org/>,
 L<Egg::View>,
-L<Egg::Config>,
 L<Egg::Engine>,
 L<Egg::Release>,
 
 =head1 AUTHOR
 
-Masatoshi Mizuno, E<lt>mizunoE<64>bomcity.comE<gt>
+Masatoshi Mizuno, E<lt>lusheE<64>cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 

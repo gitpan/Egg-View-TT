@@ -1,5 +1,5 @@
 abstract: Template ToolKit is used for View of Egg.
-author: Masatoshi Mizuno E<lt>mizunoE<64>bomcity.comE<gt>
+author: Masatoshi Mizuno E<lt>lusheE<64>cpan.orgE<gt>
 distribution_type: module
 generated_by: Module::Install version 0.64
 license: perl
@@ -13,4 +13,4 @@ requires:
   Template: 0
   Test::More: 0
   Test::Pod: 0
-version: 0.04
+version: 0.05

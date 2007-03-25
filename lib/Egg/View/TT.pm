@@ -3,14 +3,14 @@ package Egg::View::TT;
 # Copyright 2006 Bee Flag, Corp. All Rights Reserved.
 # Masatoshi Mizuno E<lt>lusheE<64>cpan.orgE<gt>
 #
-# $Id: TT.pm 247 2007-02-25 10:21:02Z lushe $
+# $Id: TT.pm 57 2007-03-21 07:12:29Z lushe $
 #
 use strict;
 use UNIVERSAL::require;
 use base qw/Egg::View/;
 use Template;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 sub setup {
 	my($class, $e, $conf)= @_;
@@ -114,7 +114,12 @@ The template is output, and it sets it in $e->response->body.
 
 =head2 render ([TEMPLATE], [TemplateToolKit OPTIONS])
 
-The template is output, and it returns it by the SCALAR reference. 
+The template is output, and it returns it by the SCALAR reference.
+
+=head2 setup
+
+It is a method for the start preparation that is called from the controller of 
+the project. * Do not call it from the application.
 
 =head1 SEE ALSO
 

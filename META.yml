@@ -13,4 +13,4 @@ requires:
   Template: 0
   Test::More: 0
   Test::Pod: 0
-version: 0.05
+version: 0.06

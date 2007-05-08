@@ -1,5 +1,10 @@
-abstract: Template ToolKit is used for View of Egg.
+abstract: Template ToolKit for Egg View.
 author: Masatoshi Mizuno E<lt>lusheE<64>cpan.orgE<gt>
+build_requires: 
+  Test::Perl::Critic: 0
+  Test::Pod: 0
+  Test::Pod::Coverage: 0
+  Test::Simple: 0
 distribution_type: module
 generated_by: Module::Install version 0.64
 license: perl
@@ -9,8 +14,6 @@ no_index:
     - inc
     - t
 requires: 
-  Egg::Release: 1.09
-  Template: 0
-  Test::More: 0
-  Test::Pod: 0
-version: 0.06
+  Egg::Release: 2.00
+  Template: 2.19
+version: 2.00

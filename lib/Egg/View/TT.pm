@@ -2,8 +2,15 @@ package Egg::View::TT;
 #
 # Masatoshi Mizuno E<lt>lusheE<64>cpan.orgE<gt>
 #
-# $Id: TT.pm 97 2007-05-07 23:58:00Z lushe $
+# $Id: TT.pm 212 2007-11-03 14:46:59Z lushe $
 #
+use strict;
+use warnings;
+use Carp qw/croak/;
+use base qw/Egg::View/;
+use Template;
+
+our $VERSION = '2.01';
 
 =head1 NAME
 
@@ -49,15 +56,6 @@ It accesses the object and data by using following variable from the template.
   s ... $e->stash.
   p ... $e->view('Mason')->params.
 
-=cut
-use strict;
-use warnings;
-use Carp qw/croak/;
-use base qw/Egg::View/;
-use Template;
-
-our $VERSION = '2.00';
-
 =head1 METHODS
 
 =head2 new
@@ -73,14 +71,6 @@ that wants to be set globally.
 
 The parameter that wants to be passed to Template ToolKit must use these methods.
 
-=cut
-
-sub _setup {
-	my($class, $e, $conf)= @_;
-	$conf->{ABSOLUTE}= 1 unless exists($conf->{ABSOLUTE});
-	$conf->{RELATIVE}= 1 unless exists($conf->{RELATIVE});
-}
-
 =head2 render ( [TEMPLATE], [OPTION] )
 
 TEMPLATE is evaluated and the output result (SCALAR reference) is returned.
@@ -89,7 +79,33 @@ It is given priority more than set of default when OPTION is passed.
 
   my $body= $view->render( 'foo.tt', [OPTION_HASH] );
 
+=head2 output ( [TEMPLATE], [OPTION] )
+
+The output result of the receipt from 'render' method is set in
+$e-E<gt>response-E<gt> body.
+
+When TEMPLATE is omitted, acquisition is tried from $view->template.
+ see L<Egg::View>.
+
+If this VIEW operates as default_view, this method is called from
+'_dispatch_action' etc. by Egg.
+
+  $view->output;
+
+=head2 reset
+
+Template ToolKit made once uses as data of the object and is spent.
+Please pass render an arbitrary option after it resets it when you want the
+object in an option different from former in the scene that recurrently calls
+render.
+
 =cut
+
+sub _setup {
+	my($class, $e, $conf)= @_;
+	$conf->{ABSOLUTE}= 1 unless exists($conf->{ABSOLUTE});
+	$conf->{RELATIVE}= 1 unless exists($conf->{RELATIVE});
+}
 sub render {
 	my $view= shift;
 	my $tmpl= shift || return(undef);
@@ -114,35 +130,11 @@ sub render {
 	       || die $view->{TemplateToolkit}->error;
 	\$body;
 }
-
-=head2 output ( [TEMPLATE], [OPTION] )
-
-The output result of the receipt from 'render' method is set in
-$e-E<gt>response-E<gt> body.
-
-When TEMPLATE is omitted, acquisition is tried from $view->template.
- see L<Egg::View>.
-
-If this VIEW operates as default_view, this method is called from
-'_dispatch_action' etc. by Egg.
-
-  $view->output;
-
-=cut
 sub output {
 	my $view= shift;
 	my $tmpl= shift || $view->template || croak q{ I want template. };
 	$view->e->response->body( $view->render($tmpl, @_) );
 }
-
-=head2 reset
-
-Template ToolKit made once uses as data of the object and is spent.
-Please pass render an arbitrary option after it resets it when you want the
-object in an option different from former in the scene that recurrently calls
-render.
-
-=cut
 sub reset {
 	$_[0]->{TemplateToolkit}= undef;
 }

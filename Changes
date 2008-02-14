@@ -1,5 +1,8 @@
 Revision history for Perl extension Egg::View::TT.
 
+3.00  2008/02/15
+    - Corresponded to Egg::Release v3.00.
+
 2.00  2007/05/02
 	- Corresponded to Egg::Release v2.00.
 

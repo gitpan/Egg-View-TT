@@ -2,36 +2,86 @@ package Egg::View::TT;
 #
 # Masatoshi Mizuno E<lt>lusheE<64>cpan.orgE<gt>
 #
-# $Id: TT.pm 212 2007-11-03 14:46:59Z lushe $
+# $Id: TT.pm 237 2008-02-03 13:42:55Z lushe $
 #
 use strict;
 use warnings;
-use Carp qw/croak/;
-use base qw/Egg::View/;
-use Template;
 
-our $VERSION = '2.01';
+our $VERSION = '3.00';
+
+sub _setup {
+	my($class, $e)= @_;
+	my $c= "$e->{namespace}::View::TT"->config;
+	$c->{ABSOLUTE}= 1 unless exists($c->{ABSOLUTE});
+	$c->{RELATIVE}= 1 unless exists($c->{RELATIVE});
+	$c->{INCLUDE_PATH} ||= [ $e->config->{dir}{template} ];
+	$c->{TEMPLATE_EXTENSION} ||= '.'. $e->config->{template_extention};
+	$class->next::method($e);
+}
+
+package Egg::View::TT::handler;
+use strict;
+use warnings;
+use Carp qw/ croak /;
+use base qw/ Egg::View /;
+use Template;
+use Egg::View::Template::GlobalParam;
+
+sub new {
+	my $view= shift->SUPER::new(@_);
+	$view->params({ Egg::View::Template::GlobalParam::set($view->e) });
+	$view;
+}
+sub render {
+	my $view= shift;
+	my $tmpl= shift || return (undef);
+	my $tt= do {
+		my $class= $view->e->namespace. '::View::TT';
+		my %option= (
+		  %{ $class->config },
+		  %{ $_[0] ? ($_[1] ? {@_}: $_[0]): {} },
+		  );
+		if ($option{TIMER}) {
+			require Template::Timer;
+			$option{CONTEXT}= Template::Timer->new(%option);
+		}
+		Template->new(\%option) || die Template->error;
+	  };
+	my $body;
+	$tt->process($tmpl, {
+	  e => $view->{e},
+	  s => $view->{e}->stash,
+	  p => $view->params,
+	  }, \$body) || die $tt->error;
+	\$body;
+}
+sub output {
+	my $view= shift;
+	my $tmpl= shift || $view->template || croak q{ I want template. };
+	$view->e->response->body( $view->render($tmpl, @_) );
+}
+
+1;
+
+__END__
 
 =head1 NAME
 
-Egg::View::TT - Template ToolKit for Egg View.
+Egg::View::TT - View for TemplateToolKit.
 
 =head1 SYNOPSIS
 
   __PACKAGE__->egg_startup(
-    ...
-    .....
-  
-  VIEW=> [
-    [ TT => {
-       INCLUDE_PATH=> [qw( /path/to/root /path/to/comp )],
-       TEMPLATE_EXTENSION=> '.tt',
-       ... other Template ToolKit option.
-       } ],
+   ...
+   .....
+   VIEW=> [
+    [ 'TT' => {
+     INCLUDE_PATH=> ['/path/to/root'],
+      } ],
     ],
   
    );
-
+  
   # The VIEW object is acquired.
   my $view= $e->view('TT');
   
@@ -40,119 +90,72 @@ Egg::View::TT - Template ToolKit for Egg View.
 
 =head1 DESCRIPTION
 
-It is VIEW to use Template ToolKit.
+It is a view for TemplateToolKit.
 
-Please add the setting of VIEW to the project to use it.
+L<http://www.template-toolkit.org/>
 
-  VIEW => [
-    [ TT => { ... Template ToolKit option. (HASH) } ],
+Please add TT to the setting of VIEW to make it use.
+
+   VIEW=> [
+    [ 'TT' => { ... TemplateToolKit option. (HASH) }
     ],
 
-* Please refer to the document of L<Template> for the option.
-
-It accesses the object and data by using following variable from the template.
+The object that can be used is as follows from the template.
 
   e ... Object of project.
-  s ... $e->stash.
-  p ... $e->view('Mason')->params.
+  s ... $e->stash
+  p ... $e->view('TT')->params
 
-=head1 METHODS
+=head1 HANDLER METHODS
+
+L<Egg::View> has been succeeded to.
 
 =head2 new
 
-When $e-E<gt>view('TT') is called, this constructor is called.
+Constructor.
 
-Please set %Egg::View::PARAMS directly from the controller to the parameter
-that wants to be set globally.
+L<Egg::View::Template::GlobalParam> is set up.
 
-  %Egg::View::PARAMS= %NewPARAM;
+  my $view= $e->view('TT');
 
-=head2 params, param
+=head2 render ([TEMPLATE_STR], [OPTION])
 
-The parameter that wants to be passed to Template ToolKit must use these methods.
+The result of evaluating the template of TEMPLATE_STR with TemplateToolKit is
+returned by the SCALAR reference.
 
-=head2 render ( [TEMPLATE], [OPTION] )
+OPTION is an option to pass to TemplateToolKit.
+OPTION overwrites a set value of the configuration.
 
-TEMPLATE is evaluated and the output result (SCALAR reference) is returned.
+  my $body= $view->render( 'foo.tt', 
+    ..........
+    ....
+    );
 
-It is given priority more than set of default when OPTION is passed.
+=head2 output ([TEMPLATE], [OPTION])
 
-  my $body= $view->render( 'foo.tt', [OPTION_HASH] );
+The result of the render method is set in $e-E<gt>response-E<gt>body.
 
-=head2 output ( [TEMPLATE], [OPTION] )
+When TEMPLATE is omitted, it acquires it from $view-E<gt>template.
 
-The output result of the receipt from 'render' method is set in
-$e-E<gt>response-E<gt> body.
-
-When TEMPLATE is omitted, acquisition is tried from $view->template.
- see L<Egg::View>.
-
-If this VIEW operates as default_view, this method is called from
-'_dispatch_action' etc. by Egg.
+OPTION is passed to the render method as it is.
 
   $view->output;
 
-=head2 reset
-
-Template ToolKit made once uses as data of the object and is spent.
-Please pass render an arbitrary option after it resets it when you want the
-object in an option different from former in the scene that recurrently calls
-render.
-
-=cut
-
-sub _setup {
-	my($class, $e, $conf)= @_;
-	$conf->{ABSOLUTE}= 1 unless exists($conf->{ABSOLUTE});
-	$conf->{RELATIVE}= 1 unless exists($conf->{RELATIVE});
-}
-sub render {
-	my $view= shift;
-	my $tmpl= shift || return(undef);
-	$view->{TemplateToolkit} ||= do {
-		my %options= @_ ? ($_[1] ? @_: %{$_[0]}): ();
-		while (my($key, $value)= each %{$view->config}) {
-			$options{$key}= $value if defined($value);
-		}
-		($options{TIMER} && ! $options{CONTEXT}) and do {
-			require Template::Timer;
-			$options{CONTEXT}= Template::Timer->new(%options);
-		  };
-		Template->new(\%options) || Egg::Error->throw( Template->error );
-	  };
-	my $body;
-	my %var = (
-	  e => $view->{e},
-	  s => $view->{e}->stash,
-	  p => $view->params,
-	  );
-	$view->{TemplateToolkit}->process($tmpl, \%var, \$body)
-	       || die $view->{TemplateToolkit}->error;
-	\$body;
-}
-sub output {
-	my $view= shift;
-	my $tmpl= shift || $view->template || croak q{ I want template. };
-	$view->e->response->body( $view->render($tmpl, @_) );
-}
-sub reset {
-	$_[0]->{TemplateToolkit}= undef;
-}
-
 =head1 SEE ALSO
 
-L<http://www.template-toolkit.org/>,
-L<Egg::View>,
-L<Egg::Engine>,
 L<Egg::Release>,
+L<Egg::View>,
+L<Egg::View::Template::GlobalParam>,
+L<Template>,
+L<http://www.template-toolkit.org/>,
 
 =head1 AUTHOR
 
-Masatoshi Mizuno, E<lt>lusheE<64>cpan.orgE<gt>
+Masatoshi Mizuno E<lt>lusheE<64>cpan.orgE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2007 Bee Flag, Corp. E<lt>L<http://egg.bomcity.com/>E<gt>, All Rights Reserved.
+Copyright (C) 2008 by Bee Flag, Corp. E<lt>L<http://egg.bomcity.com/>E<gt>, All Rights Reserved.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.6 or,
@@ -160,4 +163,3 @@ at your option, any later version of Perl 5 you may have available.
 
 =cut
 
-1;

@@ -27,7 +27,7 @@ MANIFEST			This list of files
 META.yml
 README
 t/00_use.t
-t/01_template.t
+t/01_view.t
 t/87_pod_coverage.t
 t/88_perlcritic.t
 t/89_pod.t

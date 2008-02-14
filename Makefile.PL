@@ -6,7 +6,7 @@ version_from 'lib/Egg/View/TT.pm';
 author       'Masatoshi Mizuno E<lt>lusheE<64>cpan.orgE<gt>';
 license      'perl';
 
-requires 'Egg::Release' => '2.00';
+requires 'Egg::Release' => '3.00';
 requires 'Template'     => '2.19';
 
 build_requires 'Test::More';

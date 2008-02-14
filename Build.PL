@@ -9,8 +9,8 @@ my $builder = Module::Build->new(
 
   requires => {
 
-    'Egg::Release' => 1.09,
-    'Template'     => 2.19,
+    'Egg::Release' => '3.00',
+    'Template'     => '2.19',
 
     'Test::More'           => 0,
     'Test::Pod'            => 0,

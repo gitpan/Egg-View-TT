@@ -7,7 +7,7 @@ package Egg::View::TT;
 use strict;
 use warnings;
 
-our $VERSION = '3.00';
+our $VERSION = '3.01';
 
 sub _setup {
 	my($class, $e)= @_;
